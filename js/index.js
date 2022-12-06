@@ -17,7 +17,6 @@ enum_pages = {
 	dossiers: 7,
 	users: 8,
     logout: 9
-    //embedowanie dossiera
 }
 
 enum_data = {
