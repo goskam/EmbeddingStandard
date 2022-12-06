@@ -2,10 +2,6 @@ const baseURL = "https://sup-w-002774.labs.microstrategy.com:8443/MicroStrategyL
 const projectID = "B19DEDCC11D4E0EFC000EB9495D0F44F";
 const loginMode = 1;
 
-window.onload=function(){
-	const element = document.getElementById("login-btn");
-	element.addEventListener("click", login);
-  }
 
 enum_pages = {
 	login: 1,
@@ -76,6 +72,27 @@ function render() {
             break;
     }
 }
+
+//------------------------------ ONLOAD ---------------------------------------//
+
+window.onload=function(){
+	const element = document.getElementById("login-btn");
+	element.addEventListener("click", login);
+
+  }
+
+function activeMenuButtons(){
+
+    const btn = document.querySelectorAll("a");
+
+    btn.forEach(button => {
+      button.addEventListener("click",()=> {
+          btn.forEach(newbtn=>
+              newbtn.classList.remove("active"));
+              button.classList.add("active");
+      })
+    })
+    }
 
 //------------------------------ LOGIN FUNCTION ---------------------------------------//
 
@@ -545,7 +562,6 @@ function getListOfSchedules() {
 function getListOfDossiers() {
     clearDivs();
     model.selectedPage = enum_pages.dossiers;
-    isActive.dossiers = true;
     render();
 }
 
