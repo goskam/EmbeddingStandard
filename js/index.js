@@ -1,4 +1,3 @@
-console.log('hello');
 const baseURL = "https://sup-w-002774.labs.microstrategy.com:8443/MicroStrategyLibraryStd";
 const projectID = "B19DEDCC11D4E0EFC000EB9495D0F44F";
 const loginMode = 1;
