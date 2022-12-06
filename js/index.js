@@ -2,11 +2,7 @@ console.log('hello');
 const baseURL = "https://sup-w-002774.labs.microstrategy.com:8443/MicroStrategyLibraryStd";
 const projectID = "B19DEDCC11D4E0EFC000EB9495D0F44F";
 const loginMode = 1;
-//for faster testing:
-//const username = "administrator"
 
-
-//triggers login function after providing credentials
 window.onload=function(){
 	const element = document.getElementById("login-btn");
 	element.addEventListener("click", login);
