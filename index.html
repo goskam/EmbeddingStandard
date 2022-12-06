@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>MicroStrategy Embedding</title>
+
+
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp"/>
+        
+        <script type="text/javascript" src="https://sup-w-002774.labs.microstrategy.com:8443/MicroStrategyLibraryStd/javascript/embeddinglib.js"></script>
+        <script src="./js/index.js"></script>
+        <link rel="stylesheet" href="./css/style.css">
+
+    </head>
+
+    <body onload="updateUserInfo();loadProjects();">
+
+        <div class="container">
+            <aside> 
+                <!-- The <aside> HTML element represents a portion of a document whose content is only indirectly related to the document's main content. Asides are frequently presented as sidebars or call-out boxes. -->
+                <div class="top">
+                    <div class="logo">
+                        <img src="./images/logo.svg">
+                    </div>
+
+                    <div class="close" id="close-btn">
+                        <span class="material-symbols-sharp">close</span>
+                    </div>
+                    <!-- <h2>Demo<span class="danger"></span></h2> -->
+
+                </div>
+
+
+                <div class="sidebar">
+                    <a href="#">
+                        <span class="material-symbols-sharp">grid_view</span>
+                        <!-- <h3>Dossiers</h3> -->
+                        <button onclick="getListOfDossiers()">Dossiers</button> 
+
+                    </a>
+                </div>
+
+                <div class="sidebar">
+                    <a href="#" class="active">
+                        <span class="material-symbols-sharp">subscriptions</span>       
+                        <button onclick="getSubscriptions()">Subscriptions</button> 
+                        </a>
+                </div>
+
+                <div class="sidebar">
+                    <a href="#">
+                        <span class="material-symbols-sharp">group</span>                        
+                        <button onclick="createUserSubPage()">Create User</button> 
+                    </a>
+                </div>
+
+                <div class="sidebar">
+                    <a href="#">
+                        <span class="material-symbols-sharp">chat</span>                        
+                        <h3>Messages</h3>
+                        <span class="message-count"></span>  <span></span>
+                    </a>
+                </div>
+
+                <div class="sidebar">
+                    <a href="#">
+                        <span class="material-symbols-sharp">settings</span>                        
+                        <h3>Settings</h3>
+                    </a>
+                </div>
+
+                <div class="sidebar">
+                    <a href="#">
+                        <span class="material-symbols-sharp">Logout </span>               
+                        <button onclick="logoutUser()">Logout</button> 
+                    </a>
+                </div>
+            </aside>
+
+            <!-- END OF ASIDE -->
+
+            <main>
+                <h1>Filter</h1>
+
+                <h3 id="att">Category</h3>
+                <div class="filter">
+
+                    <select name="categoryDropdown" id="categoryDropdown">
+                        <option value="Books">Books</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Movies">Movies</option>
+                        <option value="Music">Music</option>
+                      </select>
+
+                    <!-- <input type="date"> -->
+                </div>
+
+                <div class="insights">
+                    <div class="lists">
+                        <!-- <span class="material-symbols-sharp">list</span>       -->
+                        <div id="container"></div>              
+
+                    </div>
+                </div>
+
+                <div class="embeddedDossiers">
+                    <div id="embeddedContainer">
+
+                    </div>
+                    
+                </div>
+
+            </main>
+
+
+            <!-- END OF MAIN -->
+
+            <!-- RIGHT -->
+
+            <div class="right">
+                <div class="top">
+                    <button id="menu-btn">
+                        <span class="material-symbols-sharp">menu</span> 
+                    </button>
+                    <div class="theme-toggler">
+                        <span class="material-symbols-sharp active">light_mode</span>
+                        <span class="material-symbols-sharp">dark_mode</span>
+                    </div>
+                    <div class="profile">
+                        <div class="info">
+                            <p>Logged in as: <span id="whoIsLoggedIn"></span></p>
+                        </div>
+                        <div class="profile-photo">
+                            <img src="./images/profile.svg">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- END OF TOP -->
+
+                <div class="other">
+                    <h3>General information</h3>
+                    <div class="info" id="projectsContainer"></div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+    </body>
+
+
+</html>
