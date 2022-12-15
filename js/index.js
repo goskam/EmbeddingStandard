@@ -94,6 +94,11 @@ function activeMenuButtons(){
     })
     }
 
+
+
+
+
+
 //------------------------------ LOGIN FUNCTION ---------------------------------------//
 
 
@@ -177,7 +182,7 @@ function renderSubscriptionsPage() {
 
 
 function updateSubscriptionList(response){
-    let list = document.getElementById('container');
+    let list = document.getElementById('firstContainer');
     let ul = document.createElement('ul');
     list.appendChild(ul);
 
@@ -218,7 +223,7 @@ function getSubscriptionById(subscriptionId){
 
         window.sessionStorage.setItem("subDetails", response);
 
-        let element = document.getElementById("placeholderContent");
+        let element = document.getElementById("secondContainer");
 
         let textedJson = JSON.stringify(response, undefined, 4);
         element.innerHTML = textedJson;
@@ -325,8 +330,8 @@ function renderDossiersPage() {
 }
 
     function clearDivs() {
-        document.getElementById("container").innerHTML = "";
-        document.getElementById("embeddedContainer").innerHTML = "";
+        document.getElementById("firstContainer").innerHTML = "";
+        document.getElementById("secondContainer").innerHTML = "";
 
         
  
@@ -334,7 +339,7 @@ function renderDossiersPage() {
     }
 
     function updateEmbeddingList(response){
-        let list = document.getElementById('container');
+        let list = document.getElementById('firstContainer');
 		let ul = document.createElement('ul');
 		list.appendChild(ul);
 
@@ -344,31 +349,199 @@ function renderDossiersPage() {
 			ul.appendChild(li);
 			li.innerHTML = response[i].name;
             li.onclick = function() { 
-                showDossier(response[i].id); 
+
+                //getDossierDefinition(response[i].id);
+                //get dossier filters
+                //create drop down filters
+                //create dossier instance
+                //pass that dossier instance to showDossier
+
+
+                createDosierInstance(response[i].id); 
             };
 
 		}
-
-        
     }
+
+
+//------------------------------ DOSSIERS FILTERS ---------------------------------------//
+
+/*
+
+1. Create dossier instance
+2. Get definition of instance > what att/met are in filters
+3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
+4. Create a dynamic drop down with filter elements
+5. Apply filters on that dossier instance /api/dossiers/{dossierId}/instances/{instanceId}/filters
+6. Show dossier with that instance?
+
+*/
+
+// 1. Create dossier instance 
+
+function createDosierInstance(dossierId) {
+
+    const token = window.localStorage.getItem("authToken");
+
+    let options = {
+        method: 'POST',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+
+
+        }
+    };
+
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances", options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response)
+            let mid = response.mid;
+            console.log(mid);
+            getDossierInstanceDefinition(dossierId, mid);
+
+          }).catch(function(error) { console.log(error) })
+
+    }
+
+// 2. Get definition of instance > what att/met are in filters
+// get source.id (example Category id)
+
+
+function getDossierInstanceDefinition(dossierId, mid) {
+
+    const token = window.localStorage.getItem("authToken");
+    console.log(token);
+    const options = {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        }
+    }
+
+    fetch(baseURL + "/api/v2/dossiers/" + dossierId + "/instances/" + mid + "/definition", options)
+    .then(response => response.json())
+    .then(response => {
+        console.log("getDossierInstanceDefinition response:" + response)
+        console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
+        let attributeId = response.chapters[0].filters[0].source.id;
+        // response.chapters[0].filters[0].source.id
+
+        getTargetElements(dossierId, mid, attributeId);
+
+        })
+    .catch(error => console.log('error', error));
+}
+
+// 3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
+
+
+function getTargetElements(dossierId, mid, targetObjectId) {
+
+    const token = window.localStorage.getItem("authToken");
+    console.log(token);
+    const options = {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        }
+    }
+
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options)
+    .then(response => response.json())
+    .then(response => {
+        //console.log("getTargetElements response: " + response)
+        //response[i].name & response[i].id
+
+        for (i=0; i< response.length; i++){
+            let arr;
+            arr.push(response[i].name);
+            console.log("attribute element name: " + response[i].name + ", id: " + response[i].id)
+        }
+
+
+        })
+    .catch(error => console.log('error', error));
+}
+
+// 4. Create a dynamic drop down with filter elements
+
+
+function loadFilterDropDown(){
+    let filters = document.getElementById("filter-cont");
+
+    let htmlString = "";
+
+    for (i = 1; i < 20; i++) {
+        htmlString += `<div>filter ${i}</div>`;
+    }
+
+    filters.innerHTML = htmlString;
+    
+}
+
+
+
+function getDossierDefinition(dossierId) {
+
+    const token = window.localStorage.getItem("authToken");
+    console.log(token);
+    const options = {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        }
+    }
+
+    fetch(baseURL + "/api/v2/dossiers/" + dossierId + "/definition", options)
+    .then(response => response.json())
+    .then(response => {
+        console.log(response)
+
+
+
+        })
+    .catch(error => console.log('error', error));
+}
 
     function showDossier(dossierID) {
 
         //var dossierID = document.getElementById("dossierID").value;
-        var placeHolderDiv = document.getElementById("embeddedContainer");
+        var placeHolderDiv = document.getElementById("secondContainer");
         var dossierUrl = baseURL + '/app/' + projectID + '/' + dossierID;
         
 
           //----------------TESTING FILTERS--------------------//
 
-        elem = document.getElementById("att");
-        let attributeName = elem.innerHTML;
-        console.log(attributeName);
+       // elem = document.getElementById("att");
+        //let attributeName = elem.innerHTML;
+        //console.log(attributeName);
 
-        filter = document.getElementById('categoryDropdown').value
-        console.log(filter);
+        //filter = document.getElementById('categoryDropdown').value
+        //console.log(filter);
 
         microstrategy.dossier.create({
+        
           placeholder: placeHolderDiv,
           url: dossierUrl,
           //enableCustomAuthentication: true,
@@ -377,18 +550,48 @@ function renderDossiersPage() {
           //getLoginToken: login,
           containerHeight: '1000px',
           //errorHandler: customErrorHandler
+          navigationBar: {
+            enabled: true,
+            gotoLibrary: true,
+            title: false,
+            toc: true,
+            reset: true,
+            reprompt: true,
+            share: true,
+            comment: true,
+            notification: true,
+            filter: true,
+            options: false,
+            bookmark: true,
+            edit: false,
+          }
 
+          //pobierz filtry z danego dossiera
+          //wyświetl filtry na górze
+          //get filters
 
-          filters: [
-            {
-                "name": attributeName, //You can change to the actual attribute name.
-                "selections": [
-                    {"name":filter} //You can change to the actual attribute element name.
-                ]
-            }  
-        ]
 
         }).then(function(dossier) {
+
+
+        /* Get List of Filters Start */
+        // dossier
+        // .getFilterList()
+        // .then((filterList) => {
+        //   console.log("Get List of Filters:", filterList);
+        // })
+        // .catch((error) => {
+        //   console.error(error);
+        // });
+
+        //przez embedding
+        //Dossier.filterSelectSingleAttribute(filterJson)
+        //https://microstrategy.github.io/embedding-sdk-docs/add-functionality/filters/
+        /* Get List of Filters End */
+
+
+
+
           d = dossier;
           dossier.addCustomErrorHandler(function(error) {
             //Add custom logic here
@@ -428,7 +631,7 @@ function renderDossiersPage() {
         submitButton.style.border = "thin dotted red";
 
 
-		let element = document.getElementById("container");
+		let element = document.getElementById("firstContainer");
 		element.appendChild(inputBox1);
 		element.appendChild(inputBox2);	
 		element.appendChild(inputBox3);	
@@ -487,7 +690,7 @@ function renderDossiersPage() {
 		.then(response => {
 			console.log(response)
 
-			let element = document.getElementById("embeddedContainer");
+			let element = document.getElementById("secondContainer");
 			element.innerHTML = "User " + response.name + " with id: " + response.id + " was created successfully.";
 
 			})
