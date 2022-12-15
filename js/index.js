@@ -366,7 +366,7 @@ function renderDossiersPage() {
 
 //------------------------------ DOSSIERS FILTERS ---------------------------------------//
 
-/*
+/* 
 
 1. Create dossier instance
 2. Get definition of instance > what att/met are in filters
@@ -392,8 +392,6 @@ function createDosierInstance(dossierId) {
             "accept": "application/json",
             "X-MSTR-AuthToken": token,
             "X-MSTR-ProjectID": projectID
-
-
         }
     };
 
