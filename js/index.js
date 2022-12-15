@@ -375,6 +375,8 @@ function renderDossiersPage() {
 5. Apply filters on that dossier instance /api/dossiers/{dossierId}/instances/{instanceId}/filters
 6. Show dossier with that instance?
 
+Problem: cannot show dossier with mid GET 404
+Next: display dynamic filter drop down
 */
 
 // 1. Create dossier instance 
@@ -399,8 +401,11 @@ function createDosierInstance(dossierId) {
         .then(response => response.json())
         .then(response => {
             console.log(response)
+            let dossierInstance = response;
+            console.log(dossierInstance);
+            showDossier(dossierId, dossierInstance);
+
             let mid = response.mid;
-            console.log(mid);
             getDossierInstanceDefinition(dossierId, mid);
 
           }).catch(function(error) { console.log(error) })
@@ -431,8 +436,8 @@ function getDossierInstanceDefinition(dossierId, mid) {
     .then(response => response.json())
     .then(response => {
         console.log("getDossierInstanceDefinition response:" + response)
-        console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
-        let attributeId = response.chapters[0].filters[0].source.id;
+        //console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
+        //let attributeId = response.chapters[0].filters[0].source.id;
         // response.chapters[0].filters[0].source.id
 
         getTargetElements(dossierId, mid, attributeId);
@@ -494,54 +499,18 @@ function loadFilterDropDown(){
 }
 
 
-
-function getDossierDefinition(dossierId) {
-
-    const token = window.localStorage.getItem("authToken");
-    console.log(token);
-    const options = {
-        method: 'GET',
-        credentials: 'include',
-        mode: 'cors',
-        headers: {
-            'content-type': 'application/json',
-            "accept": "application/json",
-            "X-MSTR-AuthToken": token,
-            "X-MSTR-ProjectID": projectID
-        }
-    }
-
-    fetch(baseURL + "/api/v2/dossiers/" + dossierId + "/definition", options)
-    .then(response => response.json())
-    .then(response => {
-        console.log(response)
-
-
-
-        })
-    .catch(error => console.log('error', error));
-}
-
-    function showDossier(dossierID) {
+    function showDossier(dossierID, dossierInstance) {
 
         //var dossierID = document.getElementById("dossierID").value;
         var placeHolderDiv = document.getElementById("secondContainer");
         var dossierUrl = baseURL + '/app/' + projectID + '/' + dossierID;
-        
 
-          //----------------TESTING FILTERS--------------------//
-
-       // elem = document.getElementById("att");
-        //let attributeName = elem.innerHTML;
-        //console.log(attributeName);
-
-        //filter = document.getElementById('categoryDropdown').value
-        //console.log(filter);
 
         microstrategy.dossier.create({
         
           placeholder: placeHolderDiv,
           url: dossierUrl,
+          instance: dossierInstance,
           //enableCustomAuthentication: true,
           enableResponsive: true,
           //customAuthenticationType: microstrategy.dossier.CustomAuthenticationType.AUTH_TOKEN,
@@ -563,11 +532,6 @@ function getDossierDefinition(dossierId) {
             bookmark: true,
             edit: false,
           }
-
-          //pobierz filtry z danego dossiera
-          //wyświetl filtry na górze
-          //get filters
-
 
         }).then(function(dossier) {
 
@@ -728,11 +692,6 @@ function getDossierDefinition(dossierId) {
 
 
 //controller
-//window.onload = (evt) => {
-//    render();
-//}
-
-
 
 function login() {
     model.selectedPage = enum_pages.login;
