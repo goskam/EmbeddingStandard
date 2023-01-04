@@ -349,15 +349,7 @@ function renderDossiersPage() {
 			ul.appendChild(li);
 			li.innerHTML = response[i].name;
             li.onclick = function() { 
-
-                //getDossierDefinition(response[i].id);
-                //get dossier filters
-                //create drop down filters
-                //create dossier instance
-                //pass that dossier instance to showDossier
-
-
-                createDosierInstance(response[i].id); 
+                createDossierInstance(response[i].id); 
             };
 
 		}
@@ -371,6 +363,7 @@ function renderDossiersPage() {
 1. Create dossier instance
 2. Get definition of instance > what att/met are in filters
 3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
+---//showDossier(dossierId, dossierInstance)
 4. Create a dynamic drop down with filter elements
 5. Apply filters on that dossier instance /api/dossiers/{dossierId}/instances/{instanceId}/filters
 6. Show dossier with that instance?
@@ -381,7 +374,7 @@ Next: display dynamic filter drop down
 
 // 1. Create dossier instance 
 
-function createDosierInstance(dossierId) {
+function createDossierInstance(dossierId) {
 
     const token = window.localStorage.getItem("authToken");
 
@@ -437,10 +430,38 @@ function getDossierInstanceDefinition(dossierId, mid) {
     .then(response => {
         console.log("getDossierInstanceDefinition response:" + response)
         //console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
-        //let attributeId = response.chapters[0].filters[0].source.id;
-        // response.chapters[0].filters[0].source.id
 
-        getTargetElements(dossierId, mid, attributeId);
+        //here create a map of attribute id + name?
+
+        var select = document.getElementById("filterBox");
+
+        let attributeKey = response.chapters[0].filters[0].key;
+        let attributeName = response.chapters[0].filters[0].name;
+        let attributeId = response.chapters[0].filters[0].source.id;
+        getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
+
+        var opt = attributeName;
+        var el = document.createElement("select");
+        el.textContent = opt;
+        el.value = opt;
+        select.appendChild(el);
+
+        // for (i=0; i<response.chapters[0].filters.length; i++) { //chapters fixed to "0" --- need update
+        //     let attributeKey = response.chapters[0].filters[i].key;
+        //     let attributeName = response.chapters[0].filters[i].name;
+        //     let attributeId = response.chapters[0].filters[i].source.id;
+        //     getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
+
+        //     var opt = attributeName;
+        //     var el = document.createElement("select");
+        //     el.textContent = opt;
+        //     el.value = opt;
+        //     select.appendChild(el);
+     
+
+        // }
+
+        // here I have to create labels for all filters
 
         })
     .catch(error => console.log('error', error));
@@ -449,7 +470,8 @@ function getDossierInstanceDefinition(dossierId, mid) {
 // 3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
 
 
-function getTargetElements(dossierId, mid, targetObjectId) {
+
+function getTargetElements(dossierId, mid, targetObjectId, attributeName, attributeKey) {
 
     const token = window.localStorage.getItem("authToken");
     console.log(token);
@@ -468,35 +490,98 @@ function getTargetElements(dossierId, mid, targetObjectId) {
     fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options)
     .then(response => response.json())
     .then(response => {
-        //console.log("getTargetElements response: " + response)
+        console.log("getTargetElements response: " + response)
         //response[i].name & response[i].id
 
+        //update drop downs
+        document.getElementById('filterName').innerHTML = attributeName;
+
+        let select = document.getElementById('dropdown1');
+
+        //select.innerHTML = "";
+
         for (i=0; i< response.length; i++){
-            let arr;
-            arr.push(response[i].name);
-            console.log("attribute element name: " + response[i].name + ", id: " + response[i].id)
+            
+            let elementName = response[i].name;
+            let elementId = response[i].id;
+
+            //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
+
+            let el = document.createElement("option");
+
+            el.textContent = elementName;
+            el.value = elementId;
+            select.appendChild(el);
+
+
         }
+
+        
+
+  
 
 
         })
     .catch(error => console.log('error', error));
 }
 
+    function printDetails(y) {
+
+        console.log("Right now we have option: " + y.value)
+
+    }
+
+
 // 4. Create a dynamic drop down with filter elements
 
 
-function loadFilterDropDown(){
-    let filters = document.getElementById("filter-cont");
+// function loadFilterDropDown(){
+//     let filters = document.getElementById("filter-cont");
+    
+// }
 
-    let htmlString = "";
 
-    for (i = 1; i < 20; i++) {
-        htmlString += `<div>filter ${i}</div>`;
+// 5. /api/dossiers/{dossierId}/instances/{instanceId}/filters
+
+function applyFilters(dossierId, mid) {
+
+    const token = window.localStorage.getItem("authToken");
+
+    let options = {
+        method: 'POST',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        },
+        body: JSON.stringify //to be updated
+        (
+            [
+                {
+                  "key": "string",
+                  "selections": [
+                    {
+                      "id": "string",
+                      "name": "string"
+                    }
+                  ]
+                }
+              ]
+        )
+    };
+
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances" + mid + "/filters", options)
+        .then(response => response.json())
+        .then(response => {
+            console.log(response)
+
+          }).catch(function(error) { console.log(error) })
+
     }
 
-    filters.innerHTML = htmlString;
-    
-}
 
 
     function showDossier(dossierID, dossierInstance) {
@@ -757,5 +842,49 @@ function logoutUser() {
 //     };
 // }
 
+//James Q Quick array map
 
 
+
+
+
+// async-await method
+
+
+
+// async function getTargetElementsAwait(dossierId, mid, targetObjectId) {
+
+//     const token = window.localStorage.getItem("authToken");
+//     console.log(token);
+//     const options = {
+//         method: 'GET',
+//         credentials: 'include',
+//         mode: 'cors',
+//         headers: {
+//             'content-type': 'application/json',
+//             "accept": "application/json",
+//             "X-MSTR-AuthToken": token,
+//             "X-MSTR-ProjectID": projectID
+//         }
+//     }
+
+//     const response = await fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options);
+//     const elements = await response.json();
+//     console.log(elements);
+//     //how to catch with async-await
+
+
+//     // .then(response => response.json())
+//     // .then(response => {
+//     //     //console.log("getTargetElements response: " + response)
+//     //     //response[i].name & response[i].id
+
+//     //     for (i=0; i< response.length; i++){
+//     //         console.log("attribute element name: " + response[i].name + ", id: " + response[i].id);
+
+//     //     }
+
+
+//     //     })
+//     // .catch(error => console.log('error', error));
+// }
