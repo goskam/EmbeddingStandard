@@ -339,9 +339,12 @@ function renderDossiersPage() {
     }
 
     function updateEmbeddingList(response){
+        clearDivs();
+
         let list = document.getElementById('firstContainer');
 		let ul = document.createElement('ul');
 		list.appendChild(ul);
+
 
 		for (let i = 0; i < response.length; i++)  {
 			let li = document.createElement("li");
@@ -493,37 +496,29 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName, attrib
         console.log("getTargetElements response: " + response)
         //response[i].name & response[i].id
 
-        //update drop downs
+        //update name of the filter
         document.getElementById('filterName').innerHTML = attributeName;
 
         let select = document.getElementById('dropdown1');
-
-        //select.innerHTML = "";
+        //make sure that content of drop down is cleared
+        select.innerHTML = "";
 
         for (i=0; i< response.length; i++){
-            
             let elementName = response[i].name;
             let elementId = response[i].id;
 
             //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
 
+            //create elements in the drop down on the fly depending how many attribute elements attribute has
             let el = document.createElement("option");
-
             el.textContent = elementName;
             el.value = elementId;
             select.appendChild(el);
-
-
         }
-
-        
-
-  
-
-
         })
     .catch(error => console.log('error', error));
 }
+
 
     function printDetails(y) {
 
