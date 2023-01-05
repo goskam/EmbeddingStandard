@@ -362,184 +362,18 @@ function renderDossiersPage() {
 //------------------------------ DOSSIERS FILTERS ---------------------------------------//
 
 /* 
-
-1. Create dossier instance
+1. Create dossier instance and showDossier
 2. Get definition of instance > what att/met are in filters
-3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
----//showDossier(dossierId, dossierInstance)
-4. Create a dynamic drop down with filter elements
-5. Apply filters on that dossier instance /api/dossiers/{dossierId}/instances/{instanceId}/filters
-6. Show dossier with that instance?
-
-Problem: cannot show dossier with mid GET 404
-Next: display dynamic filter drop down
+3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements and create drop down
+4. Apply filters on that dossier instance /api/dossiers/{dossierId}/instances/{instanceId}/filters
+5. Refresh dossier
 */
 
 // 1. Create dossier instance 
 
 function createDossierInstance(dossierId) {
 
-    const token = window.localStorage.getItem("authToken");
-
-    let options = {
-        method: 'POST',
-        credentials: 'include',
-        mode: 'cors',
-        headers: {
-            'content-type': 'application/json',
-            "accept": "application/json",
-            "X-MSTR-AuthToken": token,
-            "X-MSTR-ProjectID": projectID
-        }
-    };
-
-    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances", options)
-        .then(response => response.json())
-        .then(response => {
-            console.log(response)
-            let dossierInstance = response;
-            console.log(dossierInstance);
-            showDossier(dossierId, dossierInstance);
-
-            let mid = response.mid;
-            getDossierInstanceDefinition(dossierId, mid);
-
-          }).catch(function(error) { console.log(error) })
-
-    }
-
-// 2. Get definition of instance > what att/met are in filters
-// get source.id (example Category id)
-
-
-function getDossierInstanceDefinition(dossierId, mid) {
-
-    const token = window.localStorage.getItem("authToken");
-    console.log(token);
-    const options = {
-        method: 'GET',
-        credentials: 'include',
-        mode: 'cors',
-        headers: {
-            'content-type': 'application/json',
-            "accept": "application/json",
-            "X-MSTR-AuthToken": token,
-            "X-MSTR-ProjectID": projectID
-        }
-    }
-
-    fetch(baseURL + "/api/v2/dossiers/" + dossierId + "/instances/" + mid + "/definition", options)
-    .then(response => response.json())
-    .then(response => {
-        console.log("getDossierInstanceDefinition response:" + response)
-        //console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
-
-        //here create a map of attribute id + name?
-
-        var select = document.getElementById("filterBox");
-
-        let attributeKey = response.chapters[0].filters[0].key;
-        let attributeName = response.chapters[0].filters[0].name;
-        let attributeId = response.chapters[0].filters[0].source.id;
-        getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
-
-        var opt = attributeName;
-        var el = document.createElement("select");
-        el.textContent = opt;
-        el.value = opt;
-        select.appendChild(el);
-
-        // for (i=0; i<response.chapters[0].filters.length; i++) { //chapters fixed to "0" --- need update
-        //     let attributeKey = response.chapters[0].filters[i].key;
-        //     let attributeName = response.chapters[0].filters[i].name;
-        //     let attributeId = response.chapters[0].filters[i].source.id;
-        //     getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
-
-        //     var opt = attributeName;
-        //     var el = document.createElement("select");
-        //     el.textContent = opt;
-        //     el.value = opt;
-        //     select.appendChild(el);
-     
-
-        // }
-
-        // here I have to create labels for all filters
-
-        })
-    .catch(error => console.log('error', error));
-}
-
-// 3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
-
-
-
-function getTargetElements(dossierId, mid, targetObjectId, attributeName, attributeKey) {
-
-    const token = window.localStorage.getItem("authToken");
-    console.log(token);
-    const options = {
-        method: 'GET',
-        credentials: 'include',
-        mode: 'cors',
-        headers: {
-            'content-type': 'application/json',
-            "accept": "application/json",
-            "X-MSTR-AuthToken": token,
-            "X-MSTR-ProjectID": projectID
-        }
-    }
-
-    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options)
-    .then(response => response.json())
-    .then(response => {
-        console.log("getTargetElements response: " + response)
-        //response[i].name & response[i].id
-
-        //update name of the filter
-        document.getElementById('filterName').innerHTML = attributeName;
-
-        let select = document.getElementById('dropdown1');
-        //make sure that content of drop down is cleared
-        select.innerHTML = "";
-
-        for (i=0; i< response.length; i++){
-            let elementName = response[i].name;
-            let elementId = response[i].id;
-
-            //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
-
-            //create elements in the drop down on the fly depending how many attribute elements attribute has
-            let el = document.createElement("option");
-            el.textContent = elementName;
-            el.value = elementId;
-            select.appendChild(el);
-        }
-        })
-    .catch(error => console.log('error', error));
-}
-
-
-    function printDetails(y) {
-
-        console.log("Right now we have option: " + y.value)
-
-    }
-
-
-// 4. Create a dynamic drop down with filter elements
-
-
-// function loadFilterDropDown(){
-//     let filters = document.getElementById("filter-cont");
-    
-// }
-
-
-// 5. /api/dossiers/{dossierId}/instances/{instanceId}/filters
-
-function applyFilters(dossierId, mid) {
-
+    console.log("dossierId ---------- " + dossierId);
     const token = window.localStorage.getItem("authToken");
 
     let options = {
@@ -552,32 +386,33 @@ function applyFilters(dossierId, mid) {
             "X-MSTR-AuthToken": token,
             "X-MSTR-ProjectID": projectID
         },
-        body: JSON.stringify //to be updated
-        (
-            [
-                {
-                  "key": "string",
-                  "selections": [
-                    {
-                      "id": "string",
-                      "name": "string"
-                    }
-                  ]
-                }
-              ]
-        )
+		body: JSON.stringify
+		 ({
+            persistViewState: true
+		 })
     };
 
-    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances" + mid + "/filters", options)
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances", options)
         .then(response => response.json())
         .then(response => {
             console.log(response)
+            let dossierInstance = response;
+            showDossier(dossierId, dossierInstance);
+
+            let mid = response.mid;
+
+            window.localStorage.setItem("mid", mid);
+            window.localStorage.setItem("dossierId", dossierId);
+            window.localStorage.setItem("dossierInstance", dossierInstance);
+            console.log("mid ------------- " + mid)
+
+            getDossierInstanceDefinition(dossierId, mid);
 
           }).catch(function(error) { console.log(error) })
-
     }
 
 
+    //SHOW DOSSIER INSTANCE
 
     function showDossier(dossierID, dossierInstance) {
 
@@ -614,26 +449,6 @@ function applyFilters(dossierId, mid) {
           }
 
         }).then(function(dossier) {
-
-
-        /* Get List of Filters Start */
-        // dossier
-        // .getFilterList()
-        // .then((filterList) => {
-        //   console.log("Get List of Filters:", filterList);
-        // })
-        // .catch((error) => {
-        //   console.error(error);
-        // });
-
-        //przez embedding
-        //Dossier.filterSelectSingleAttribute(filterJson)
-        //https://microstrategy.github.io/embedding-sdk-docs/add-functionality/filters/
-        /* Get List of Filters End */
-
-
-
-
           d = dossier;
           dossier.addCustomErrorHandler(function(error) {
             //Add custom logic here
@@ -641,6 +456,194 @@ function applyFilters(dossierId, mid) {
           });
         });
       }
+
+
+// 2. Get definition of instance > what att/met are in filters
+// get source.id (example Category id)
+
+
+function getDossierInstanceDefinition(dossierId, mid) {
+
+    const token = window.localStorage.getItem("authToken");
+    console.log(token);
+    const options = {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        }
+    }
+
+    fetch(baseURL + "/api/v2/dossiers/" + dossierId + "/instances/" + mid + "/definition", options)
+    .then(response => response.json())
+    .then(response => {
+        console.log("getDossierInstanceDefinition response:" + response)
+        //console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
+
+        //here create a map of attribute id + name?
+
+        var select = document.getElementById("filterBox");
+
+        let attributeKey = response.chapters[0].filters[0].key;
+        let attributeName = response.chapters[0].filters[0].name;
+        let attributeId = response.chapters[0].filters[0].source.id;
+        getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
+
+        var el = document.createElement("select");
+        el.textContent = attributeName;
+        el.value = attributeKey;
+        select.appendChild(el);
+
+        })
+    .catch(error => console.log('error', error));
+}
+
+// 3. Get attribute elements of that filter /api/dossiers/{dossierId}/instances/{dossierInstanceId}/elements
+
+
+
+function getTargetElements(dossierId, mid, targetObjectId, attributeName, attributeKey) {
+
+    const token = window.localStorage.getItem("authToken");
+    const options = {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        }
+    }
+
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options)
+    .then(response => response.json())
+    .then(response => {
+        //update name of the filter
+        document.getElementById('filterName').innerHTML = attributeName;
+        let select = document.getElementById('dropdown1');
+
+        //make sure that content of drop down is cleared
+        select.innerHTML = "";
+
+        //add elements to drop down
+        for (i=0; i< response.length; i++){
+            let elementName = response[i].name;
+            let elementId = response[i].id;
+
+            //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
+
+            //create elements in the drop down on the fly depending how many attribute elements attribute has
+            let el = document.createElement("option");
+            el.textContent = elementName;
+            el.value = elementId;
+            select.appendChild(el);
+        }
+        })
+    .catch(error => console.log('error', error));
+}
+
+
+// 4. /api/dossiers/{dossierId}/instances/{instanceId}/filters
+
+function applyFilters(attributeElement) {
+
+
+    console.log("Attribute element value " + attributeElement.value)
+
+
+    const token = window.localStorage.getItem("authToken");
+    let mid = window.localStorage.getItem("mid");
+    let dossierId = window.localStorage.getItem("dossierId");
+
+
+    let options = {
+        method: 'PUT',
+        credentials: 'include',
+        mode: 'cors',
+        headers: {
+            'content-type': 'application/json',
+            "accept": "application/json",
+            "X-MSTR-AuthToken": token,
+            "X-MSTR-ProjectID": projectID
+        },
+        body: JSON.stringify //to be updated
+        (
+            [
+                {
+                  "key": "W5003B79F82574133819D5515216C0AA0", //id of attribute, example "W5003B79F82574133819D5515216C0AA0"
+                  "selections": [
+                    {
+                      "id": attributeElement.value //id of attribute element, example: h35;8D679D4F11D3E4981000E787EC6DE8A4
+                    }
+                  ]
+                }
+              ]
+        )
+    };
+
+    fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/filters", options)
+    .then(function(response) {
+        if(response.ok) {
+            console.log('filters applied ***');
+            //refresh the dossier
+            //showDossier(dossierId, dossierInstance); ?
+
+            refreshDossier(dossierId);
+        }
+      }).catch(function(error) { console.log(error) })
+
+
+    }
+
+
+// 5. Refresh the dossier just with dossierID
+
+
+      function refreshDossier(dossierId) {
+
+        var placeHolderDiv = document.getElementById("secondContainer");
+        var dossierUrl = baseURL + '/app/' + projectID + '/' + dossierId;
+
+
+        microstrategy.dossier.create({
+          placeholder: placeHolderDiv,
+          url: dossierUrl,
+          //enableCustomAuthentication: true,
+          enableResponsive: true,
+          //customAuthenticationType: microstrategy.dossier.CustomAuthenticationType.AUTH_TOKEN,
+          //getLoginToken: login,
+          containerHeight: '1000px',
+          //errorHandler: customErrorHandler
+          navigationBar: {
+            enabled: true,
+            gotoLibrary: true,
+            title: false,
+            toc: true,
+            reset: true,
+            reprompt: true,
+            share: true,
+            comment: true,
+            notification: true,
+            filter: true,
+            options: false,
+            bookmark: true,
+            edit: false,
+          }
+        }).then(function(dossier) {
+          d = dossier;
+          dossier.addCustomErrorHandler(function(error) {
+            //Add custom logic here
+            window.alert("Error after creating of dossier: " + error.message);
+          });
+        });
+      }
+
 
 
 //------------------------------ CREATE USER ---------------------------------------//
