@@ -35,7 +35,7 @@
     appearance: none;
     border: 0;
     text-decoration: none;
-    list-style: none;
+    /* list-style: none; */
     box-sizing: border-box;
 }
 
@@ -147,8 +147,7 @@ button{
     font-size: 14px;
     background: var(--color);
     color: var(--color-info-dark);
-
-
+    cursor: pointer;
 }
 
 
@@ -189,6 +188,7 @@ aside .sidebar a.active span{
 }
 
 aside .sidebar a:hover{
+    cursor: pointer;
     color: var(--color-primary);
 }
 
@@ -236,6 +236,23 @@ main .first > div {
 main .first > div:hover {
     box-shadow:none;
 }
+
+main .first li {
+    list-style: square;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0 var(--color-primary);
+    margin: 0 -.25rem;
+    padding: 0 .25rem;
+    transition: color .3s ease-in-out, box-shadow .3s ease-in-out;
+
+}
+
+main .first li:hover {
+    cursor: pointer;
+    box-shadow: inset 100px 0 0 0 var(--color-primary);
+    color: white;
+}
+
 
 main .second >div {
     background: var(--color-white);
