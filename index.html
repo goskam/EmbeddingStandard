@@ -79,31 +79,46 @@
 
             <!-- END OF ASIDE -->
 
+
             <main>
-                <h1>Filters</h1>
 
-                <h3 id="filterName">XXX</h3>
-                <div class="filter" id="filter-cont">
+                <!-- TOP CONTAINER (LIST OF DOSSIERS)-->
 
-                    <select id="dropdown1" onchange="applyFilters(this)">
+                <div class="first">
+                        <div id="firstContainer">
 
-                      </select>
-
-                    <!-- <input type="date"> -->
+                        </div>              
                 </div>
 
+                <!-- TOP CONTAINER (LIST OF DOSSIERS) END-->
+
+
+                <!-- FILTERS AND DROP DOWNS-->
 
                 <div class="filterBox" id="filterBox">
 
                 </div>
 
 
+                <h3 id="filterName"></h3>
+                <div class="filter" id="filter-cont">
+
+                    <div id="filterTesting">
+                        <!-- <span>This is testing div, append drop downs here</span> -->
+                    </div>
 
 
-                <div class="first">
-                        <!-- <span class="material-symbols-sharp">list</span>       -->
-                        <div id="firstContainer"></div>              
-                </div>
+                    <select id="dropdown1" onchange="applyFilters(this)"></select>
+                    <select id="dropdown2" onchange="applyFilters(this)"></select>
+                    <select id="dropdown3" onchange="applyFilters(this)"></select>
+
+
+                    </div>
+
+                <!-- FILTERS AND DROP DOWNS END-->
+
+
+                <!-- 2ND CONTAINER (EMBEDDED DOSSIERS, OTHER)-->
 
                 <div class="second">
                     <div id="secondContainer">
@@ -111,6 +126,9 @@
                     </div>
                     
                 </div>
+
+                <!-- 2ND CONTAINER (EMBEDDED DOSSIERS, OTHER) END-->
+
 
             </main>
 

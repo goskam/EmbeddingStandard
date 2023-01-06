@@ -79,6 +79,12 @@ window.onload=function(){
 	const element = document.getElementById("login-btn");
 	element.addEventListener("click", login);
 
+    // element.addEventListener("keypress", function(event) {
+    //     if (event.key === "Enter") {
+    //       console.log("enter clicked");
+    //     }
+    //   });
+
   }
 
 function activeMenuButtons(){
@@ -341,6 +347,7 @@ function renderDossiersPage() {
     function updateEmbeddingList(response){
         clearDivs();
 
+
         let list = document.getElementById('firstContainer');
 		let ul = document.createElement('ul');
 		list.appendChild(ul);
@@ -403,7 +410,6 @@ function createDossierInstance(dossierId) {
 
             window.localStorage.setItem("mid", mid);
             window.localStorage.setItem("dossierId", dossierId);
-            window.localStorage.setItem("dossierInstance", dossierInstance);
             console.log("mid ------------- " + mid)
 
             getDossierInstanceDefinition(dossierId, mid);
@@ -482,21 +488,40 @@ function getDossierInstanceDefinition(dossierId, mid) {
     .then(response => response.json())
     .then(response => {
         console.log("getDossierInstanceDefinition response:" + response)
-        //console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
+        console.log("filter attirbute id: " + response.chapters[0].filters[0].source.id)
 
-        //here create a map of attribute id + name?
-
-        var select = document.getElementById("filterBox");
+        //DEMO 1 START - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
 
         let attributeKey = response.chapters[0].filters[0].key;
         let attributeName = response.chapters[0].filters[0].name;
         let attributeId = response.chapters[0].filters[0].source.id;
-        getTargetElements(dossierId, mid, attributeId, attributeName, attributeKey);
+        getTargetElements(dossierId, mid, attributeId, attributeName);
 
-        var el = document.createElement("select");
-        el.textContent = attributeName;
-        el.value = attributeKey;
-        select.appendChild(el);
+        window.localStorage.setItem("attributeKey", attributeKey);
+
+        //DEMO 1 END - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
+
+        // var select = document.getElementById("filterBox");
+        // var el = document.createElement("select"); not necessary?
+        // el.textContent = attributeName;
+        // el.value = attributeKey;
+        // select.appendChild(el);
+
+        //DEMO 2 START - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
+
+        // let myDiv = document.getElementById("filterTesting");
+        // myDiv.innerHTML = "";
+
+        // for (i=0; i < response.chapters[0].filters.length; i++) {
+        //     let attributeKey = response.chapters[0].filters[i].key;
+        //     let attributeName = response.chapters[0].filters[i].name;
+        //     let attributeId = response.chapters[0].filters[i].source.id;
+        //     getTargetElements(dossierId, mid, attributeId, attributeName);
+
+        // }
+
+        //DEMO 2 END - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
+
 
         })
     .catch(error => console.log('error', error));
@@ -506,7 +531,7 @@ function getDossierInstanceDefinition(dossierId, mid) {
 
 
 
-function getTargetElements(dossierId, mid, targetObjectId, attributeName, attributeKey) {
+function getTargetElements(dossierId, mid, targetObjectId, attributeName) {
 
     const token = window.localStorage.getItem("authToken");
     const options = {
@@ -524,10 +549,14 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName, attrib
     fetch(baseURL + "/api/dossiers/" + dossierId + "/instances/" + mid + "/elements?targetObjectId=" + targetObjectId + "&targetObjectType=attribute", options)
     .then(response => response.json())
     .then(response => {
+
+        //DEMO 1 START - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
+
         //update name of the filter
         document.getElementById('filterName').innerHTML = attributeName;
-        let select = document.getElementById('dropdown1');
 
+
+        let select = document.getElementById('dropdown1');
         //make sure that content of drop down is cleared
         select.innerHTML = "";
 
@@ -544,6 +573,43 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName, attrib
             el.value = elementId;
             select.appendChild(el);
         }
+
+        //DEMO 1 END - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
+
+       // for (i = 0; i < filters.length; i++){
+
+        // let selectorId = document.querySelectorAll('select')[i].id;
+        // let elem = document.getElementById(selectorId);
+        // elem.innerHTML = "";
+
+
+        // }
+
+        //DEMO 2 START - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
+ 
+        // //create drop downs for each attribute filter
+        // let myDiv = document.getElementById("filterTesting");
+        // let dropD = document.createElement("select");
+        // dropD.textContent = attributeName;
+        // myDiv.appendChild(dropD);
+
+        // //append elements to drop down
+        // //dropD is currentdropdown
+
+        //  for (i=0; i< response.length; i++){
+        //     let elementName = response[i].name;
+        //     let elementId = response[i].id;
+
+        //     //create elements in the drop down on the fly depending how many attribute elements attribute has
+        //     let el = document.createElement("option");
+        //     el.textContent = elementName;
+        //     el.value = elementId;
+        //     dropD.appendChild(el);
+        // }
+
+        //DEMO 2 END - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
+
+
         })
     .catch(error => console.log('error', error));
 }
@@ -554,8 +620,9 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName, attrib
 function applyFilters(attributeElement) {
 
 
-    console.log("Attribute element value " + attributeElement.value)
-
+    console.log("Attribute element value " + attributeElement.value);
+    let attributeKey = window.localStorage.getItem("attributeKey");
+    console.log("attribute key: " + attributeKey);
 
     const token = window.localStorage.getItem("authToken");
     let mid = window.localStorage.getItem("mid");
@@ -576,7 +643,7 @@ function applyFilters(attributeElement) {
         (
             [
                 {
-                  "key": "W5003B79F82574133819D5515216C0AA0", //id of attribute, example "W5003B79F82574133819D5515216C0AA0"
+                  "key": attributeKey, //id of attribute, example "W5003B79F82574133819D5515216C0AA0"
                   "selections": [
                     {
                       "id": attributeElement.value //id of attribute element, example: h35;8D679D4F11D3E4981000E787EC6DE8A4
