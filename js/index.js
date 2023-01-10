@@ -228,15 +228,20 @@ function getSubscriptionById(subscriptionId){
         console.log(response)
 
         window.sessionStorage.setItem("subDetails", response);
+        let formattedResponse = JSON.stringify(response, null, 2);
 
         let element = document.getElementById("secondContainer");
 
-        let textedJson = JSON.stringify(response, undefined, 4);
-        element.innerHTML = textedJson;
+        let copyButton = document.createElement("button");
+        copyButton.setAttribute('name', 'copy');
+        copyButton.setAttribute('value', 'Copy');
+        copyButton.setAttribute('type', 'button');
+        //copyButton.setAttribute('onclick', 'navigator.clipboard.writeText(formattedResponse.value)');
+        copyButton.innerHTML = "Copy to clipboard";
+        element.appendChild(copyButton);
 
-
-
-        //updateColumns(response);
+        
+        element.innerHTML += "<br/> <br/> Json response: <br/> <br/>" + formattedResponse;
         })
     .catch(error => console.log('error', error));
 }
@@ -338,10 +343,9 @@ function renderDossiersPage() {
     function clearDivs() {
         document.getElementById("firstContainer").innerHTML = "";
         document.getElementById("secondContainer").innerHTML = "";
-
-        
- 
-
+        // document.getElementById("filter-cont").innerHTML = "";
+        // document.getElementById("filterName").innerHTML = "";
+        // document.getElementById("filterBox").innerHTML = "";
     }
 
     function updateEmbeddingList(response){
@@ -492,12 +496,12 @@ function getDossierInstanceDefinition(dossierId, mid) {
 
         //DEMO 1 START - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
 
-        let attributeKey = response.chapters[0].filters[0].key;
-        let attributeName = response.chapters[0].filters[0].name;
-        let attributeId = response.chapters[0].filters[0].source.id;
-        getTargetElements(dossierId, mid, attributeId, attributeName);
+        // let attributeKey = response.chapters[0].filters[0].key;
+        // let attributeName = response.chapters[0].filters[0].name;
+        // let attributeId = response.chapters[0].filters[0].source.id;
+        // getTargetElements(dossierId, mid, attributeId, attributeName);
 
-        window.localStorage.setItem("attributeKey", attributeKey);
+        // window.localStorage.setItem("attributeKey", attributeKey);
 
         //DEMO 1 END - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
 
@@ -509,16 +513,22 @@ function getDossierInstanceDefinition(dossierId, mid) {
 
         //DEMO 2 START - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
 
-        // let myDiv = document.getElementById("filterTesting");
-        // myDiv.innerHTML = "";
+        let myDiv = document.getElementById("filterTesting");
+        myDiv.innerHTML = "";
 
-        // for (i=0; i < response.chapters[0].filters.length; i++) {
-        //     let attributeKey = response.chapters[0].filters[i].key;
-        //     let attributeName = response.chapters[0].filters[i].name;
-        //     let attributeId = response.chapters[0].filters[i].source.id;
-        //     getTargetElements(dossierId, mid, attributeId, attributeName);
+        for (i=0; i < response.chapters[0].filters.length; i++) {
+            let attributeKey = response.chapters[0].filters[i].key;
+            window.localStorage.setItem("attributeKey", attributeKey);
 
-        // }
+
+            let attributeName = "";
+            let attributeId = "";
+
+            attributeName = response.chapters[0].filters[i].name;
+            attributeId = response.chapters[0].filters[i].source.id;
+            getTargetElements(dossierId, mid, attributeId, attributeName);
+
+        }
 
         //DEMO 2 END - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
 
@@ -552,27 +562,27 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName) {
 
         //DEMO 1 START - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
 
-        //update name of the filter
-        document.getElementById('filterName').innerHTML = attributeName;
+        // //update name of the filter
+        // document.getElementById('filterName').innerHTML = attributeName;
 
 
-        let select = document.getElementById('dropdown1');
-        //make sure that content of drop down is cleared
-        select.innerHTML = "";
+        // let select = document.getElementById('dropdown1');
+        // //make sure that content of drop down is cleared
+        // select.innerHTML = "";
 
-        //add elements to drop down
-        for (i=0; i< response.length; i++){
-            let elementName = response[i].name;
-            let elementId = response[i].id;
+        // //add elements to drop down
+        // for (i=0; i< response.length; i++){
+        //     let elementName = response[i].name;
+        //     let elementId = response[i].id;
 
-            //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
+        //     //document.getElementById('dropdown1').getElementsByTagName('option')[i].innerHTML = elementName;
 
-            //create elements in the drop down on the fly depending how many attribute elements attribute has
-            let el = document.createElement("option");
-            el.textContent = elementName;
-            el.value = elementId;
-            select.appendChild(el);
-        }
+        //     //create elements in the drop down on the fly depending how many attribute elements attribute has
+        //     let el = document.createElement("option");
+        //     el.textContent = elementName;
+        //     el.value = elementId;
+        //     select.appendChild(el);
+        // }
 
         //DEMO 1 END - USE TO PRESENT WORKFLOW FOR SINGLE ATTRIBUTE ONLY - WORKING FINE ____________________________________________________________________________________
 
@@ -587,25 +597,32 @@ function getTargetElements(dossierId, mid, targetObjectId, attributeName) {
 
         //DEMO 2 START - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
  
-        // //create drop downs for each attribute filter
-        // let myDiv = document.getElementById("filterTesting");
-        // let dropD = document.createElement("select");
-        // dropD.textContent = attributeName;
-        // myDiv.appendChild(dropD);
+        //create drop downs for each attribute filter
+        let myDiv = document.getElementById("filterTesting");
+        let dropD = document.createElement("select");
+        dropD.setAttribute('onchange', "applyFilters(this)");
+        dropD.textContent = attributeName;
+        myDiv.appendChild(dropD);
 
-        // //append elements to drop down
-        // //dropD is currentdropdown
 
-        //  for (i=0; i< response.length; i++){
-        //     let elementName = response[i].name;
-        //     let elementId = response[i].id;
+        let placeholder = document.createElement("option");
+        placeholder.textContent = attributeName;
+        dropD.appendChild(placeholder);
 
-        //     //create elements in the drop down on the fly depending how many attribute elements attribute has
-        //     let el = document.createElement("option");
-        //     el.textContent = elementName;
-        //     el.value = elementId;
-        //     dropD.appendChild(el);
-        // }
+        //append elements to drop down
+        //dropD is currentdropdown
+
+         for (i=0; i< response.length; i++){
+            let elementName = response[i].name;
+            let elementId = response[i].id;
+
+            //create elements in the drop down on the fly depending how many attribute elements attribute has
+            let el = document.createElement("option");
+            el.textContent = elementName;
+            el.value = elementId;
+
+            dropD.appendChild(el);
+        }
 
         //DEMO 2 END - USE TO PRESENT WORKFLOW FOR MULTIPLE ATTRIBUTE FILTERS - TESTING ____________________________________________________________________________________
 
@@ -808,6 +825,38 @@ function applyFilters(attributeElement) {
 			})
 		.catch(error => console.log('error', error));
 	}
+
+
+
+
+
+    //report instance test
+
+    function createReportInstance(){
+
+		const token = window.localStorage.getItem("authToken");
+		const options = {
+			method: 'POST',
+			credentials: 'include',
+			mode: 'cors',
+			headers: {
+				'content-type': 'application/json',
+				"accept": "application/json",
+				"X-MSTR-AuthToken": token,
+                "X-MSTR-ProjectID": projectID
+			}
+		}
+
+		fetch(baseURL + "/api/v2/reports/E93280F14D405EB68955F6BEBB908B24/instances", options)
+		.then(response => response.json())
+		.then(response => {
+			console.log(response)
+
+
+			})
+		.catch(error => console.log('error', error));
+	}
+
 
 //------------------------------ LOGOUT ---------------------------------------//
 
